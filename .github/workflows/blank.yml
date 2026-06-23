@@ -13,6 +13,24 @@ jobs:
   backend-test-build:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: postgres://test:test@localhost:5432/test-db
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_DB
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: checkout-code
         uses: actions/checkout@v4
@@ -22,7 +40,7 @@ jobs:
         with:
           node-version: ${{env.NODE_VERSION}}
           cache: npm
-          cache-directory-path: ./ci-cd-day2/package-lock.json
+          cache-dependency-path: ./package-lock.json
 
       - name: installing-packages
         run: npm ci
